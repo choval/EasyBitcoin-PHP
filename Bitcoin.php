@@ -55,12 +55,12 @@ class Bitcoin
         // If no parameters are passed, this will be an empty array
         $params = array_values($params);
 
-		// Certain methods need specific formats
-		switch($method) {
-			case 'walletpassphrase':
-				$params[1] = intval($params[1]);
-				break;
-		}
+        // Certain methods need specific formats
+        switch($method) {
+            case 'walletpassphrase':
+                $params[1] = intval($params[1]);
+                break;
+        }
 
         // The ID should be unique for each call
         $this->id++;
@@ -106,6 +106,9 @@ class Bitcoin
 
         curl_setopt_array($curl, $options);
 
+        // Execute the request and decode to an array
+        $response = json_decode(curl_exec($curl),true);
+
         // If the status is not 200, something is wrong
         $this->status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
@@ -116,18 +119,15 @@ class Bitcoin
 
         if (!empty($curl_error)) {
             $this->error = $curl_error;
-			// Throw an exception
-			throw new \Exception($this->error);
+            // Throw an exception
+            throw new \Exception($this->error);
         }
 
-        // Execute the request and decode to an array
-		$response = json_decode(curl_exec($curl),true);
-
         if ($response['error']) {
-			// If bitcoind returned an error, put that in $this->error
-			$this->error = $response['error']['message'];
-			// Throw an exception
-			throw new \Exception($this->error, $response['error']['code']);
+            // If bitcoind returned an error, put that in $this->error
+            $this->error = $response['error']['message'];
+            // Throw an exception
+            throw new \Exception($this->error, $response['error']['code']);
         } elseif ($this->status != 200) {
             // If bitcoind didn't return a nice error message, we need to make our own
             switch ($this->status) {
@@ -143,14 +143,17 @@ class Bitcoin
                 case 404:
                     $this->error = 'HTTP_NOT_FOUND';
                     break;
-				default:
-					$this->error = 'UNKNOWN_RESPONSE';
-					break;
+                default:
+                    $this->error = 'UNKNOWN_RESPONSE';
+                    break;
             }
-			// Throw an exception
-			throw new \Exception($this->error);
+            // Throw an exception
+            throw new \Exception($this->error);
         }
 
+        if(is_null($response['result'])) {
+            return true;
+        }
         return $response['result'] ;
     }
 }
