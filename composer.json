@@ -1,0 +1,14 @@
+{
+	"name": "choval/easybitcoin-php",
+	"description": "A simple class for making calls to Bitcoin's API using PHP",
+	"private": true,
+	"type": "library",
+	"license": "See LICENSE",
+	"autoload": {
+		"files": [
+			"Bitcoin.php"
+		]
+	},
+	"require": {
+	}
+}
