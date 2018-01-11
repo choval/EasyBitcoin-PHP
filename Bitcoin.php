@@ -10,6 +10,7 @@ class Bitcoin
     private $port;
     private $url;
     private $CACertificate;
+	private $raiseExceptions = false;
 
     // Information and debugging
     public $status;
@@ -37,6 +38,13 @@ class Bitcoin
         $this->proto         = 'http';
         $this->CACertificate = null;
     }
+
+	/**
+	 * @param boolean $exceptions
+	 */
+	public function raiseExceptions($exceptions) {
+		$this->exceptions = $exceptions ? true : false;
+	}
 
     /**
      * @param string|null $certificate
@@ -112,15 +120,19 @@ class Bitcoin
 
         if (!empty($curl_error)) {
             $this->error = $curl_error;
-            // Throw an exception
-            throw new \Exception($this->error);
+			if($this->raiseExceptions) {
+				// Throw an exception
+				throw new \Exception($this->error);
+			}
         }
 
         if ($response['error']) {
             // If bitcoind returned an error, put that in $this->error
             $this->error = $response['error']['message'];
-            // Throw an exception
-            throw new \Exception($this->error, $response['error']['code']);
+			if($this->raiseExceptions) {
+				// Throw an exception
+				throw new \Exception($this->error, $response['error']['code']);
+			}
         } elseif ($this->status != 200) {
             // If bitcoind didn't return a nice error message, we need to make our own
             switch ($this->status) {
@@ -140,8 +152,10 @@ class Bitcoin
                     $this->error = 'UNKNOWN_RESPONSE';
                     break;
             }
-            // Throw an exception
-            throw new \Exception($this->error);
+			if($this->raiseExceptions) {
+				// Throw an exception
+				throw new \Exception($this->error);
+			}
         }
 
         return $response['result'] ;
