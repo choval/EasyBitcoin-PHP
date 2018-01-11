@@ -55,13 +55,6 @@ class Bitcoin
         // If no parameters are passed, this will be an empty array
         $params = array_values($params);
 
-        // Certain methods need specific formats
-        switch($method) {
-            case 'walletpassphrase':
-                $params[1] = intval($params[1]);
-                break;
-        }
-
         // The ID should be unique for each call
         $this->id++;
 
