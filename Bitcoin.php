@@ -144,9 +144,6 @@ class Bitcoin
             throw new \Exception($this->error);
         }
 
-        if(is_null($response['result'])) {
-            return true;
-        }
         return $response['result'] ;
     }
 }
